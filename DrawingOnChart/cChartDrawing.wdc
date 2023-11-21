@@ -1,0 +1,2035 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cChartDrawing
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x10ffef79019d8cd1
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  internal_properties : CAAAAAgAAAADZD6XckEJIYhJRp1vqJE43Q2xT1o1QbR7qlp5Wk2BxYGohFPbEoxfLz4m3QtRbAZ5DryAy0k1vZobpMaj/lRmdypna7Tf
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAAAPG6fShv1rEyrTx99Hf/LkUKpQd3Vqm9P+HP8nElz5BaAgaxTxKZqOImWa0XKsW4gO6TaTNXnbxb9DzxCpAEeCpQse1e+I6/GXsL8i8tcMMAqnsQ+/vtm3kEpm1GZq3gGDxPEf/k09N0ZIDyNTbSURBxfZpmn7aRwC0tI8MZlkx2U1NYaH7Jkdf6JbzGYm0VyEPBa6x/XiQ9xHaEGpnuPhdjGdHGhTd7f+2vHRFdu38ljnsK/3GrZt4XaN23HzWpVl/AA=
+     code : |1-
+      
+      POINT is Structure
+      	x, y are int										// Coordinates of the point
+      END
+      
+      RECTANGLE is Structure
+      	x1, y1, x2, y2 are int								// Coordinates of the rectangle
+      END
+      
+      INFOPOINT is Structure
+      	SERIES, Category 	are int						// Series and category of the point
+      	POINT 				is POINT							// Coordinates of the point
+      	Key					is string							// Key of the point
+      	Color 			is int 							// Color of the point
+      	Thickness			is int							// Thickness
+      END
+      
+      SERIES is Structure
+      	Number 					is int						// Series number	
+      	Color 				is int						// Color of the series
+      	Thickness				is int						// Thickness of the series
+      	MinValue, MaxValue 	are numeric					// Minimum and maximum values of the series
+      	LowerBound, UpperBound 	 	are INFOPOINT					// Minimum and maximum bounds of the series
+      	AveValue				is numeric					// Average value of the series
+      	stAverage 				is INFOPOINT					// Average bound of the series
+      	Points 				 	is array of INFOPOINT			// List of chart points
+      	MinPoint, MaxPoint 	 	are POINT						// Other points
+      	MinRadius, MaxRadius		are reals						// Min and max radii (radar chart)
+      	AveRadius 				is real							// Radii of the average (radar chart)
+      END
+      
+      FLAG is Structure
+      	SERIES, Category are int							// Series and category of the flag
+      	Symbol			 is string								// Symbol of the flag	
+      	Key				 is string								// Key of the flag
+      	Rollover			 is boolean								// Flag indicating whether the flag is hovered
+      	Pressed			 is boolean								// Flag indicating whether the flag is pressed
+      	Height			 is int								// Height of the flag
+      	POINT			 is POINT								// Coordinates of the flag
+      	Direction			 is int 								// Direction of the flag (0 to the top, 1 to the bottom)
+      END
+      
+      AREA is Structure
+      	Name					is string							// Name of the area
+      	SERIES			 	is int							// Associated series
+      	SourceCategory  	is int							// Source category of the area
+      	EndCategory 	is int							// End category of the area
+      	Color			 	is int							// Color of the area
+      	MinPoint, MaxPoint	are POINT							// Display Bounds
+      	MinVal, MaxVal 		are numeric						// Values of the display bounds
+      	Rollover			 	is boolean							// Flag indicating whether the area is hovered
+      	Polygon			is array of int					// Polygon of the area (radar chart)
+      END
+      
+      cChartDrawing is Class
+      
+      	PRIVATE
+      		m_sChartControl				is string				// Chart control associated with the drawing
+      		m_bMinMaxEnabled				is boolean				// DrawingMinMaxEnabled property
+      		m_bAverageEnabled				is boolean				// DrawingAverageEnabled property
+      		m_bPlotEnabled				is boolean				// DrawingPlotEnabled property
+      		m_bTrackerEnabled				is boolean				// DrawingTrackerEnabled property
+      		m_sFlagCallback			is string				// CallbackFlag property
+      		m_sCallBackRollover			is string				// CallbackRollover property
+      		m_sAreaCallback				is string				// CallbackArea property
+      		m_nMinMaxStyle				is int				// Style of min/max
+      		m_arrSeries					is array of SERIES		// List of chart series		
+      		m_arrPoints					is array of INFOPOINT	// List of chart points		
+      		m_arrFlags				is array of FLAG	// List of flags
+      		m_arrAreas					is array of AREA		// List of areas
+      		m_bRecalcNecessary		is boolean				// Flag indicating whether the points must be calculated
+      		m_stChartRectangle			is RECTANGLE			// Rectangle of the chart
+      		m_stChartCenter			is POINT				// Center of the chart (radar chart)
+      		m_stLastSerie				is SERIES				// Last series
+      		m_stLastTracker				is INFOPOINT			// Last tracker
+      		m_arrLastPoints				is array of INFOPOINT	// Last points hovered
+      		m_nChartType				is int				// Type of the chart		
+      		m_rMinRadius, m_rMaxRadius	are reals				// Min and max radii (radar chart)
+      		m_arrSeriesColors			is array of int	// Default colors of series
+      		m_nOffsetY					is int				// Y offset caused by the change of origin (grOrigin)
+      		m_nNbCategories				is int				// Number of categories
+      END
+      
+      EXTERN “WINCONST.WL”
+     type : 131072
+  procedures :
+   -
+     name : Constructor
+     internal_properties : CAAAAAgAAABYA3VRhWOK0aCLH7ZuEG9qWoypHWU2mfWlA/6GyLLFYRnX9bDeNjKBQo05DIirCKt8XVG75zGTP5MbeOVWXpxv1nCWVim200XurUPOfCjDsGNYQPN6ZCgR/sAmMxNhExFBLBD8uSFTS7vTReQXmzzpTZj8aXbTd9Z3y0HXH/1Sb0rI
+     procedure_id : 1224960926665837777
+     type_code : 27
+     code : |1-
+      
+      Procedure Constructor(LOCAL sGraphControl is string, nNbCat)
+      
+      	m_nNbCategories = nNbCat
+      
+      	SWITCH grType({sGraphControl, indControl})
+      	
+      		// No drawing can be done on the 3D charts
+      		CASE gr3DSAreaStacked, gr3DSAreaDepth, gr3DSLine, gr3DSCylinderColStacked, gr3DSCylinderColClustered, gr3DSCylinderColDepth, gr3DSColumnStacked, gr3DSColumnClustered, gr3DSColumnDepth, gr3DSMinMax, gr3DSScatter, gr3DSPie
+      			delete object
+      			RETURN
+      			
+      		// No drawing can be done on the charts without axes
+      		CASE grSemiCircular, grPie, grDonut
+      			delete object
+      			RETURN			
+      			
+      		// The drawing was not intended for the following charts
+      		CASE grScatter, grMinMax, grCandleStick, grBarCharts
+      			delete object
+      			RETURN
+      		other case
+      	END
+      
+      	// Keeps the name of the chart
+      	m_sChartControl = sGraphControl
+      	
+      	// Default values
+      	MinMaxStyle = MINMAX_LINES	
+      	m_bRecalcNecessary = True
+      	
+      	// Manages the event for resizing the chart
+      	Event(On_WMSIZE, 			m_sChartControl, WM_SIZE)
+      	
+      	// Manages the rollover and the click on the chart
+      	Event(On_WMMOUSEMOVE, 		m_sChartControl, WM_MOUSEMOVE)
+      	Event(On_WMLBUTTONUP, 		m_sChartControl, WM_LBUTTONUP)
+      	Event(On_WMLBUTTONDOWN, 	m_sChartControl, WM_LBUTTONDOWN)
+      	
+      	// Default colors of series
+      	Add(m_arrSeriesColors, RGB(0xff, 0xd4, 0x40))
+      	Add(m_arrSeriesColors, RGB(0xff, 0xbf, 0x69))
+      	Add(m_arrSeriesColors, RGB(0xff, 0x9d, 0xc7))
+      	Add(m_arrSeriesColors, RGB(0xd7, 0x9d, 0xf8))
+      	Add(m_arrSeriesColors, RGB(0xb2, 0xa3, 0xff))
+      	Add(m_arrSeriesColors, RGB(0x67, 0xaf, 0xe8))
+      	Add(m_arrSeriesColors, RGB(0xb2, 0xa3, 0xff))
+      	Add(m_arrSeriesColors, RGB(0x65, 0xc3, 0xe6))
+      	Add(m_arrSeriesColors, RGB(0x5e, 0xd7, 0xcb))
+      	Add(m_arrSeriesColors, RGB(0x88, 0xe3, 0x71))
+      	Add(m_arrSeriesColors, RGB(0xb0, 0xe4, 0x33))
+      	Add(m_arrSeriesColors, RGB(0xd8, 0xeb, 0x2b))
+      	
+      CASE EXCEPTION:
+      	delete object
+      	RETURN 
+     type : 589824
+   -
+     name : Destructor
+     procedure_id : 1224960926665903313
+     type_code : 28
+     code : |1-
+      Procedure Destructor()
+     type : 655360
+   -
+     name : Drawing
+     internal_properties : CAAAAAgAAAAGNuZIepJJqghSA4I93JfYuDRr6GrAQujF7qF5E8lAfD+KXFQhldFL/nZUxfWPpceRIpV21rHMm6YA5eCOkTK6B37RyRiZIxXcNN2dbYiLlmFGurSm9CbznhCblTP1NivtRl77YrRKtsrDBaEkxSoWt6PVW7sCMWrAFAIh1mO4un0dyW5pdEglyuhJkg5MC0MeJXp6U7O840lJQLrgQ2t445nlAC5ueKtM1sszhFZlTR2eZxKSsDrvMnsx6wlm3GCxFq1Ic6wobIQXNahqgL4ihHuKGvfOSC0N9JdBJYj44dV/EmPMvP64gDCbmATyXl4OKeU=
+     procedure_id : 1224960926665968849
+     type_code : 12
+     code : |1-
+      // Summary: Updates the drawing associated with the chart
+      // Syntax:
+      //Drawing ([<bReCalcNecessary> is boolean])
+      //
+      // Parameters:
+      // 	bReCalcNecessary (boolean - default value=False): True if the points of the chart must be calculated, False otherwise
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC Drawing(bReCalcNecessary is boolean = False)
+      
+      	stSeries 	is SERIES
+      	
+      	stFlag	is FLAG
+      	stArea		is AREA
+      	nSubscript		is int
+      	stCircle	is RECTANGLE
+      	
+      	
+      	// If the type of the chart was changed
+      	IF grType({m_sChartControl, indControl}) <> m_nChartType THEN
+      	
+      		// Retrieves the type of the chart
+      		m_nChartType =	grType({m_sChartControl, indControl})
+      		
+      		// And the coordinates must be recalculated
+      		m_bRecalcNecessary = True
+      	END
+      	
+      	IF bReCalcNecessary THEN
+      		
+      		// The coordinates must be recalculated
+      		m_bRecalcNecessary = True
+      	END
+      			
+      	// If the points of the chart must be calculated
+      	IF m_bRecalcNecessary THEN
+      		
+      		// Recalculates the coordinates of all the points
+      		RecalculateCoordinates({m_sChartControl, indControl})
+      	END
+      	
+      	// Starts drawing
+      	dStartDrawing(m_sChartControl, dOnChart)
+      	
+      	// If the drawing of the average is enabled
+      	IF DrawingAverageEnabled THEN
+      		
+      		// Draw the minimum/maximum bound
+      		FOR EACH stSeries of m_arrSeries
+      		
+      			dPen(stSeries:Color, 1, stSeries:Thickness)
+      			dBackGround(Transparent, 0)
+      			
+      			IF m_nChartType = grRadar THEN
+      				
+      				// Rectangle of max circle
+      				stCircle:x1 = m_stChartCenter:x - stSeries:AveRadius
+      				stCircle:x2 = m_stChartCenter:x + stSeries:AveRadius						
+      				stCircle:y1 = m_stChartCenter:y - stSeries:AveRadius
+      				stCircle:y2 = m_stChartCenter:y + stSeries:AveRadius
+      				
+      				// Draw the average circle
+      				dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)
+      			ELSE
+      				
+      				// Average line
+      				dLine(m_stChartRectangle:x1 + 1, stSeries:stAverage:Point:y, m_stChartRectangle:x2, stSeries:stAverage:Point:y)							
+      			END
+      		END
+      	END
+      	
+      	// If the drawing of MIN/MAX is enabled
+      	IF DrawingMinMaxEnabled THEN
+      		
+      		// Draw the minimum/maximum bound
+      		FOR EACH stSeries of m_arrSeries
+      			
+      			SWITCH MinMaxStyle
+      				
+      				// Lines
+      				CASE MINMAX_LINES
+      					
+      					dPen(stSeries:Color, 1, stSeries:Thickness)
+      					dBackGround(Transparent, 0)
+      					
+      					IF m_nChartType = grRadar THEN
+      						
+      						// Rectangle of max circle
+      						stCircle:x1 = m_stChartCenter:x - stSeries:MaxRadius
+      						stCircle:x2 = m_stChartCenter:x + stSeries:MaxRadius						
+      						stCircle:y1 = m_stChartCenter:y - stSeries:MaxRadius
+      						stCircle:y2 = m_stChartCenter:y + stSeries:MaxRadius
+      						
+      						// Draw the max circle
+      						dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)
+      
+      						// Rectangle of min circle
+      						stCircle:x1 = m_stChartCenter:x - stSeries:MinRadius
+      						stCircle:x2 = m_stChartCenter:x + stSeries:MinRadius						
+      						stCircle:y1 = m_stChartCenter:y - stSeries:MinRadius
+      						stCircle:y2 = m_stChartCenter:y + stSeries:MinRadius
+      												
+      						// Draw the min circle
+      						dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)						
+      						
+      					ELSE
+      					
+      						// Max line
+      						dLine(m_stChartRectangle:x1 + 1, stSeries:UpperBound:Point:y, m_stChartRectangle:x2, stSeries:UpperBound:Point:y)
+      						
+      						// Min line
+      						dLine(m_stChartRectangle:x1 + 1, stSeries:LowerBound:Point:y, m_stChartRectangle:x2, stSeries:LowerBound:Point:y)							
+      					END
+      				
+      				
+      				// Areas	
+      				CASE MINMAX_AREAS
+      
+      					dPen(stSeries:Color, 1, stSeries:Thickness)
+      					dBackGround(stSeries:Color, 2, 2)
+      					
+      					IF m_nChartType = grRadar THEN
+      
+      						dChangeMode(drawXOR)
+      						dPen(stSeries:Color || 0xFFFFFF, 1, stSeries:Thickness)
+      						dBackGround(stSeries:Color || 0xFFFFFF, 2, 2)
+      
+      						// Rectangle of max circle + N
+      						stCircle:x1 = m_stChartCenter:x - (stSeries:MaxRadius + 25)
+      						stCircle:x2 = m_stChartCenter:x + (stSeries:MaxRadius + 25)				
+      						stCircle:y1 = m_stChartCenter:y - (stSeries:MaxRadius + 25)
+      						stCircle:y2 = m_stChartCenter:y + (stSeries:MaxRadius + 25)
+      						
+      						// Draw the max circle
+      						dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)
+      						
+      						// Rectangle of max circle
+      						stCircle:x1 = m_stChartCenter:x - stSeries:MaxRadius
+      						stCircle:x2 = m_stChartCenter:x + stSeries:MaxRadius
+      						stCircle:y1 = m_stChartCenter:y - stSeries:MaxRadius
+      						stCircle:y2 = m_stChartCenter:y + stSeries:MaxRadius
+      						
+      						// Draw the max circle
+      						dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)
+      						
+      						dChangeMode(drawDefault)
+      						dPen(stSeries:Color, 1, stSeries:Thickness)
+      						dBackGround(stSeries:Color, 2, 2)
+      						
+      						// Rectangle of min circle
+      						stCircle:x1 = m_stChartCenter:x - stSeries:MinRadius
+      						stCircle:x2 = m_stChartCenter:x + stSeries:MinRadius						
+      						stCircle:y1 = m_stChartCenter:y - stSeries:MinRadius
+      						stCircle:y2 = m_stChartCenter:y + stSeries:MinRadius
+      						
+      						// Draw the min circle
+      						dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2)	
+      						
+      					ELSE
+      					
+      						// Max area
+      						dRectangle(m_stChartRectangle:x1 + 1, m_stChartRectangle:y1, m_stChartRectangle:x2, stSeries:UpperBound:Point:y)
+      						
+      						// Min area
+      						dRectangle(m_stChartRectangle:x1 + 1, stSeries:LowerBound:Point:y, m_stChartRectangle:x2, m_stChartRectangle:y2)
+      					END
+      			END
+      		END		
+      	END
+      
+      	// For each area
+      	FOR EACH stArea of m_arrAreas
+      		
+      		// Draw the area
+      		DrawArea(stArea)			
+      	END
+      	
+      	// For each flag
+      	FOR EACH stFlag of m_arrFlags FromEnd
+      		
+      		// Finds the corresponding point
+      		nSubscript = Seek(m_arrPoints, asLinear, “Key”, stFlag:Key)
+      		IF nSubscript > 0 THEN
+      			
+      			// Draw the flag
+      			DrawFlag(stFlag, m_arrPoints[nSubscript]:Point)			
+      		END		 
+      	END
+      	
+      	// Update
+      	Wait(0, waitRedraw)
+     type : 458752
+   -
+     name : On_WMSIZE
+     procedure_id : 1224960926666034385
+     type_code : 12
+     code : |1-
+      // Summary: Manages the event for resizing the chart
+      // Syntax:
+      //[ <Result> = ] On_WMSIZE ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	boolean: False
+      //
+      Procedure PRIVATE On_WMSIZE()
+      
+      	// Asks the chart to be redrawn
+      	WL.grDraw({m_sChartControl, indControl})
+      
+      	// The points must be recalculated
+      	m_bRecalcNecessary = True
+      
+      	// Performs the drawing
+      	Drawing()
+      	
+      // Prevents the chart from being redrawn
+      RESULT True
+     type : 458752
+   -
+     name : RecalculateCoordinates
+     internal_properties : CAAAAAgAAACAL6VRVljTgMuse0i6WtWybcRd0rstwNph9Hdeb1EWhO6sQD6BBGd9BG3kYdoZA3V/IGByrNJJBLZ3rM5GVIrmbaRlweqk5pL7sLIVuSqXfdTGw05B9aCbGhXzADMBE77ekcNu0BDI3+DJicmOOT5femwL98qSWVJo++dioTeNs2S8nQ40DDK7CThXhdU3brm4LSbmkifeit6n5wBpFfUxAnIN+g==
+     procedure_id : 1224960926666099921
+     type_code : 12
+     code : |1-
+      // Summary: Recalculates the coordinates for all the points of the chart
+      // Syntax:
+      //RecalculateCoordinates (<ChartControl>)
+      //
+      // Parameters:
+      // 	ChartControl: Chart control
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE RecalculateCoordinates(ChartControl)
+      
+      	nNbSeries 	is int
+      	nCategory	is int
+      	stSeries	  	is SERIES
+      	stInfo	  	is INFOPOINT
+      	stLastInfo	is INFOPOINT
+      	stFlag	is FLAG
+      	stArea		is AREA
+      	rTotal		is real
+      	
+      	// Retrieves the number of chart series
+      	nNbSeries = ChartControl..Occurrence
+      	
+      	// Clears the information about the series
+      	DeleteAll(m_arrSeries)
+      	DeleteAll(m_arrPoints)	
+      	VariableReset(m_stLastSerie)
+      	VariableReset(m_arrLastPoints)
+      	VariableReset(m_stLastTracker)
+      	
+      	// If it is a radar chart
+      	IF m_nChartType = grRadar THEN
+      		
+      		// Defines the center of the chart
+      		m_stChartCenter:x = grInfoPoint(ChartControl, grXCoordinate, grAxisX, grMin)
+      		m_stChartCenter:y = grInfoPoint(ChartControl, grYCoordinate, grAxisY, grMin)				
+      	ELSE
+      		
+      		// Defines the rectangle of the chart
+      		m_stChartRectangle:x1 = grInfoPoint(ChartControl, grXCoordinate, grAxisX, grMin)
+      		m_stChartRectangle:y2 = grInfoPoint(ChartControl, grYCoordinate, grAxisY, grMin)
+      		m_stChartRectangle:x2 = grInfoPoint(ChartControl, grXCoordinate, grAxisX, grMax)
+      		m_stChartRectangle:y1 = grInfoPoint(ChartControl, grYCoordinate, grAxisY, grMax)	
+      		
+      		// If the origin is not positioned at 0
+      		IF ChartControl..YAxisMin <> 0 THEN
+      						
+      			// Calculates the offset
+      			m_nOffsetY = ((m_stChartRectangle:y1 - m_stChartRectangle:y2) / (ChartControl..YAxisMax - ChartControl..YAxisMin)) * ChartControl..YAxisMin
+      		END
+      	END
+      	
+      	
+      	// For each series
+      	FOR i = 1 _TO_ nNbSeries
+      		
+      		VariableReset(stSeries)
+      		
+      		// Series number
+      		stSeries:Number = i		
+      		
+      		//
+      		// Retrieves the minimum and maximum values of the series
+      		//
+      		
+      		// Retrieves the lowest value
+      		stSeries:MinValue = ChartControl[stSeries:Number]..MinValue
+      		
+      		// Retrieves the highest value
+      		stSeries:MaxValue = ChartControl[stSeries:Number]..MaxValue
+      		
+      		//
+      		// Other data
+      		//
+      		stSeries:Color 	= ChartControl[stSeries:Number]..SeriesColor
+      		stSeries:Thickness 	= ChartControl[stSeries:Number]..Thickness
+      		
+      		IF stSeries:Color = -1 THEN
+      			stSeries:Color = m_arrSeriesColors[(stSeries:Number modulo m_arrSeriesColors..Occurrence) + 1]
+      		END
+      		
+      		IF m_nChartType <> grRadar THEN
+      		
+      			// Lower bound
+      			stSeries:LowerBound:Point:y	= grInfoPoint(ChartControl, grYCoordinate, stSeries:Number, grMin)
+      			
+      			// Upper bound
+      			stSeries:UpperBound:Point:y	= grInfoPoint(ChartControl, grYCoordinate, stSeries:Number, grMax)
+      		END
+      			
+      		//
+      		// Browse the values of the chart
+      		//
+      		
+      		nCategory = 1
+      		rTotal = 0
+      
+      		FOR nCategory=1 _TO_ m_nNbCategories
+      			
+      			VariableReset(stInfo)
+      			
+      			// General information
+      			stInfo:Series 		= stSeries:Number
+      			stInfo:Category	= nCategory
+      			stInfo:Key			= stInfo:Series + “-” + stInfo:Category
+      							
+      			// Retrieves the coordinates of the point
+      			stInfo:Point:x = grInfoPoint(ChartControl, grXCoordinate, stSeries:Number, stInfo:Category)
+      			stInfo:Point:y = grInfoPoint(ChartControl, grYCoordinate, stSeries:Number, stInfo:Category) 
+      														
+      			IF m_nChartType IN (grColumn, grColumnStacked) THEN
+      			
+      				// In an histogram, Y corresponds to half of the height of the bar
+      				stInfo:Point:y = m_stChartRectangle:y2 + (stInfo:Point:y - m_stChartRectangle:y2) * 2 + m_nOffsetY
+      			END
+      						
+      			IF m_nChartType = grRadar  THEN
+      				
+      				IF ChartControl[stSeries:Number][stInfo:Category] = stSeries:MinValue THEN
+      
+      					// Lower bound
+      					stSeries:LowerBound:Point = stInfo:Point
+      				END
+      				
+      				IF ChartControl[stSeries:Number][stInfo:Category] = stSeries:MaxValue THEN
+      					
+      					// Upper bound
+      					stSeries:UpperBound:Point = stInfo:Point
+      				END				
+      			END
+      			
+      			// Total
+      			rTotal += ChartControl[stSeries:Number][stInfo:Category]
+      			
+      			// Saves the point
+      			Add(stSeries:Points, stInfo)			
+      			Add(m_arrPoints, stInfo)			
+      			
+      			// Keeps the point for the next time
+      			stLastInfo = stInfo
+      		END
+      		
+      		// Average
+      		stSeries:AveValue = rTotal / Max(1, stSeries:Points..Occurrence)
+      		
+      		// Calculates the distance between the maximum point and the center of the chart (and therefore the radius of the maximum circle)
+      		stSeries:MaxRadius = CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, stSeries:UpperBound:Point:x, stSeries:UpperBound:Point:y)
+      		
+      		// Calculates the distance between the minimum point and the center of the chart (and therefore the radius of the minimum circle)
+      		stSeries:MinRadius = CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, stSeries:LowerBound:Point:x, stSeries:LowerBound:Point:y)
+      		
+      		// Calculates the position of the average value in the chart
+      		stSeries:stAverage:Point:x = m_stChartRectangle:x1 + (stSeries:AveValue - ChartControl..XAxisMin) * stSeries:LowerBound:Point:x / Max(1, stSeries:MinValue - ChartControl..XAxisMin)
+      		stSeries:stAverage:Point:y = m_stChartRectangle:y2 - (stSeries:AveValue - ChartControl..YAxisMin) * (m_stChartRectangle:y2 - stSeries:LowerBound:Point:y) / Max(1, stSeries:MinValue - ChartControl..YAxisMin)
+      		
+      		// Calculates the average radius
+      		stSeries:AveRadius = stSeries:AveValue * stSeries:MinRadius / Max(1, stSeries:MinValue)
+      		
+      		// Saves the information about the series
+      		Add(m_arrSeries, stSeries)
+      	END
+      	
+      	// Sort by descending MaxRadius
+      	Sort(m_arrSeries, asMember, “-MaxRadius”)
+      	
+      	// Calculates the distance between the maximum point and the center of the chart (and therefore the radius of the maximum circle)
+      	m_rMaxRadius = CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, m_arrSeries[1]:UpperBound:Point:x, m_arrSeries[1]:UpperBound:Point:y)
+      	
+      	// Sort by ascending MaxRadius
+      	Sort(m_arrSeries, asMember, “MinRadius”)
+      	
+      	// Calculates the distance between the minimum point and the center of the chart (and therefore the radius of the minimum circle)
+      	m_rMinRadius = CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, m_arrSeries[1]:LowerBound:Point:x, m_arrSeries[1]:LowerBound:Point:y)
+      	
+      	// Restores the default sort
+      	Sort(m_arrSeries, asMember, “+Number”)
+      	
+      	// Recalculates the coordinates of the flags
+      	FOR EACH stFlag of m_arrFlags
+      		
+      		stFlag:Height = 0
+      		
+      		// Retrieves the coordinates
+      		stFlag:Point:x	= grInfoPoint(ChartControl, grXCoordinate, stFlag:Series, stFlag:Category)
+      		stFlag:Point:y	= grInfoPoint(ChartControl, grYCoordinate, stFlag:Series, stFlag:Category)
+      		
+      		IF m_nChartType IN (grColumn, grColumnStacked) THEN
+      			
+      			// In an histogram, Y corresponds to half of the height of the bar
+      			stFlag:Point:y = m_stChartRectangle:y2 + (stFlag:Point:y - m_stChartRectangle:y2) * 2 + m_nOffsetY			
+      		END
+      	END
+      	
+      	// Recalculates the coordinates of the areas
+      	FOR EACH stArea of m_arrAreas
+      		
+      		// Retrieves the coordinates
+      		stArea:MinPoint:x	= grInfoPoint(ChartControl, grXCoordinate, stArea:Series, stArea:SourceCategory)
+      		stArea:MinPoint:y	= grInfoPoint(ChartControl, grYCoordinate, stArea:Series, stArea:SourceCategory)
+      		stArea:MaxPoint:x	= grInfoPoint(ChartControl, grXCoordinate, stArea:Series, stArea:EndCategory)
+      		stArea:MaxPoint:y	= grInfoPoint(ChartControl, grYCoordinate, stArea:Series, stArea:EndCategory)
+      			
+      		IF m_nChartType IN (grColumn, grColumnStacked) THEN
+      			
+      			// In an histogram, Y corresponds to half of the height of the bar
+      			stArea:MinPoint:y = m_stChartRectangle:y2 + (stArea:MinPoint:y - m_stChartRectangle:y2) * 2 + m_nOffsetY				
+      			stArea:MaxPoint:y = m_stChartRectangle:y2 + (stArea:MaxPoint:y - m_stChartRectangle:y2) * 2 + m_nOffsetY				
+      		END
+      		
+      		// Retrieves the value of the areas		
+      		stArea:MinVal		= {m_sChartControl, indControl}[stArea:Series][stArea:SourceCategory]
+      		stArea:MaxVal		= {m_sChartControl, indControl}[stArea:Series][stArea:EndCategory]
+      		
+      		DeleteAll(stArea:Polygon)
+      	END
+      	
+      	// No need to recalculate the points for the next drawing
+      	m_bRecalcNecessary = False
+     type : 458752
+   -
+     name : AddFlag
+     internal_properties : CAAAAAgAAABYA3VRhWOK0aCLH7ZuEG9qWoypHWU2mfWlA/6GyLLFYRnX9bDeNjKBQo05DIirCKt8XVG75zGTP5MbeOVWXpxv1nCWVim200XurUPOfCjDsGNYQPN6ZCgR/sAmMxNhExFBLBD8uSFTS7vTReQXmzzpTZj8aXbTd9Z3y0HXH/1Sb0rI
+     procedure_id : 1224960926666165457
+     type_code : 12
+     code : |1-
+      // Summary: Adds a flag onto the chart
+      // Syntax:
+      //[ <Result> = ] AddFlag (<nSeries> is int, <nCategory> is int, <sSymbol> is string [, <bToTheBottom> is boolean])
+      //
+      // Parameters:
+      //	nSeries (integer): Number of the series
+      //	nCategory (integer): Subscript of the value in the series
+      //	sSymbol (string): Symbol displayed on the flag (a single character is allowed)
+      // 	bToTheBottom (boolean - default value=0): True to display the flag upside down, False otherwise (this parameter is ignored in the radar charts)
+      // Return value:
+      // 	integer:  Subscript of the flag
+      //
+      // Automatic process of exceptions:   run CASE EXCEPTION:
+      //
+      Procedure PUBLIC AddFlag(LOCAL nSeries is int, LOCAL nCategory is int, LOCAL sSymbol is string, LOCAL bToTheBottom is boolean = False)
+      
+      	stFlag is FLAG
+      	nSubscript	  is int
+      
+      	// Checks whether the flag already exists
+      	nSubscript = Seek(m_arrFlags, asLinear, “Key”, nSeries + “-” + nCategory)
+      	IF nSubscript > 0 THEN
+      		
+      		// Modifies the flag
+      		ModifyFlag(nSeries, nCategory, sSymbol, bToTheBottom)
+      		RESULT nSubscript
+      	END
+      
+      	// Keep the first character only
+      	sSymbol = Left(sSymbol, 1)
+      	
+      	// Creates the flag
+      	stFlag:Category = nCategory
+      	stFlag:Series 	= nSeries
+      	stFlag:Symbol	= sSymbol
+      	stFlag:Key		= nSeries + “-” + nCategory
+      	stFlag:Direction		= bToTheBottom
+      		
+      	// Retrieves the coordinates
+      	stFlag:Point:x	= grInfoPoint({m_sChartControl, indControl}, grXCoordinate, nSeries, nCategory)
+      	stFlag:Point:y	= grInfoPoint({m_sChartControl, indControl}, grYCoordinate, nSeries, nCategory)
+      	
+      	IF m_nChartType IN (grColumn, grColumnStacked) THEN
+      		
+      		// In an histogram, Y corresponds to half of the height of the bar
+      		stFlag:Point:y = m_stChartRectangle:y2 + (stFlag:Point:y - m_stChartRectangle:y2) * 2 + m_nOffsetY				
+      	END
+      	
+      	// Saves the flag
+      	nSubscript = Add(m_arrFlags, stFlag)	
+      	
+      RESULT nSubscript
+      	
+      CASE EXCEPTION:
+      	RESULT -1
+     type : 458752
+   -
+     name : ModifyFlag
+     procedure_id : 1224960926666230993
+     type_code : 12
+     code : |1-
+      // Summary: Modifies a flag on the chart. The flag is created if it does not exist
+      // Syntax:
+      //ModifyFlag (<nSeries> is int, <nCategory> is int, <sSymbol> is string, <bToTheBottom> is boolean)
+      //
+      // Parameters:
+      //	nSeries (integer): Number of the series
+      //	nCategory (integer): Subscript of the value in the series
+      //	sSymbol (string): Symbol displayed on the flag (a single character is allowed)
+      //	bToTheBottom (boolean): True to display the flag upside down, False otherwise (this parameter is ignored in the radar charts)
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC ModifyFlag(LOCAL nSeries is int, LOCAL nCategory is int, LOCAL sSymbol is string, LOCAL bToTheBottom is boolean)
+      
+      	nSubscript	  is int
+      
+      	// Keep the first character only
+      	sSymbol = Left(sSymbol, 1)
+      		
+      	// Finds the flag
+      	nSubscript = Seek(m_arrFlags, asLinear, “Key”, nSeries + “-” + nCategory)
+      	IF nSubscript > 0 THEN
+      		
+      		// Modifies the symbol of the flag
+      		m_arrFlags[nSubscript]:Direction		= bToTheBottom
+      		m_arrFlags[nSubscript]:Symbol  = sSymbol		
+      	ELSE
+      		
+      		AddFlag(nSeries, nCategory, sSymbol, bToTheBottom)
+      	END	
+     type : 458752
+   -
+     name : DeleteFlag
+     procedure_id : 1224960926666296529
+     type_code : 12
+     code : |1-
+      // Summary: Deletes a flag from the chart
+      // Syntax:
+      //DeleteFlag (<nSeries> is int, <nCategory> is int)
+      //
+      // Parameters:
+      //	nSeries (integer): Number of the series
+      //	nCategory (integer): Subscript of the value in the series
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC DeleteFlag(LOCAL nSeries is int, LOCAL nCategory is int)
+      
+      	nSubscript	  is int
+      
+      	// Finds the flag
+      	nSubscript = Seek(m_arrFlags, asLinear, “Key”, nSeries + “-” + nCategory)
+      	IF nSubscript > 0 THEN
+      		
+      		// Deletes the flag
+      		Delete(m_arrFlags, nSubscript)
+      	END	
+     type : 458752
+   -
+     name : DeleteAllFlags
+     procedure_id : 1224960926666362065
+     type_code : 12
+     code : |1-
+      // Summary: Deletes all the flags
+      // Syntax:
+      //DeleteAllFlags ([<nSeries> is int])
+      //
+      // Parameters:
+      // 	nSeries (integer - default value=-1): Number of the series whose flags must be deleted or -1 to delete all the flags
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC DeleteAllFlags(LOCAL nSeries is int = -1)
+      
+      	nSubscript	  is int
+      
+      	IF nSeries = -1 THEN
+      		
+      		// Deletes all the flags
+      		DeleteAll(m_arrFlags)		
+      	ELSE
+      		
+      		// First flag of the series
+      		nSubscript = Seek(m_arrFlags, asLinear, “Series”, nSeries)
+      		WHILE nSubscript > 0
+      			
+      			// Deletes the flag
+      			Delete(m_arrFlags, nSubscript)
+      			
+      			// Next flag in the series
+      			nSubscript = Seek(m_arrFlags, asLinear, “Series”, nSeries)
+      		END
+      	END
+     type : 458752
+   -
+     name : DrawFlag
+     procedure_id : 1224960926666427601
+     type_code : 12
+     code : |1-
+      // Summary: <specify the action of the procedure>
+      // Syntax:
+      //DrawFlag (<stFlag> is FLAG, <stPoint> is POINT [, <bRollover> is boolean])
+      //
+      // Parameters:
+      //	stFlag (FLAG): Information about the flag
+      //	stPoint (POINT): Coordinates of the flag
+      //	bRollover (boolean - default value=0): True for a rollover drawing, False otherwise
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE DrawFlag(stFlag is FLAG, stPoint is POINT, LOCAL bRollover is boolean = False, *)
+      
+      	nColor 	is int
+      	
+      	nHeight	is int
+      	nBColor	is int
+      	nIncrement	is int	
+      	
+      	// Retrieves the color of the series
+      	nColor = m_arrSeries[Seek(m_arrSeries, asLinear, “Number”, stFlag:Series)]:Color
+      	
+      	// Don't re-draw the flag if it status does not change
+      	IF MyParameters..NbReceived = 3 THEN
+      		IF stFlag:Rollover 	_AND_ bRollover 		THEN RETURN
+      		IF NOT stFlag:Rollover _AND_ NOT bRollover 	THEN RETURN
+      	END
+      	
+      	IF stFlag:Height = 0 THEN
+      	
+      		// Default height 
+      		nHeight = 40
+      		nIncrement = 1
+      		
+      		// For a radar chart, if the flag is positioned below the center of the chart OR if the direction was explicitly requested
+      		IF (m_nChartType = grRadar _AND_ stPoint:y > m_stChartCenter:y) OR stFlag:Direction = 1 THEN
+      			
+      			// The flag must be upside down
+      			nHeight 	= -nHeight
+      			nIncrement 	= -nIncrement
+      		END
+      		
+      		// Retrieves the background color of the chart
+      		nBColor = {m_sChartControl, indControl}..BrushColor
+      		IF nBColor = Transparent THEN
+      			
+      			// Retrieves the background color of the window
+      			nBColor = {WinInput, indWindow}..BrushColor
+      		END
+      		
+      		// If the color at the location of the flag corresponds to the background color of the window
+      		WHILE NOT (dPixelColor(m_sChartControl, stPoint:x + 18, 	stPoint:y - nHeight / 2) IN (nBColor, grColor({m_sChartControl, indControl}, grColorGridlines), grColor({m_sChartControl, indControl}, grColorGridlinesSide)))
+      			// Increases the height
+      			nHeight += nIncrement
+      			IF Abs(nHeight) >= 99 THEN BREAK
+      		END
+      
+      		// Keeps the calculated height
+      		stFlag:Height = nHeight
+      
+      	ELSE
+      		
+      		// Retrieves the height of the flag
+      		nHeight = stFlag:Height
+      	END
+      	
+      	// Draws the flagpole
+      	dLine(stPoint:x, stPoint:y, stPoint:x, stPoint:y - nHeight, nColor)
+      	
+      	IF m_nChartType = grRadar THEN
+      		
+      		dPen(nColor, 3, 1)
+      		
+      		// Draws a line toward the center
+      		dLine(stPoint:x, stPoint:y, m_stChartCenter:x, m_stChartCenter:y)
+      		
+      		dPen(nColor, 0)
+      	END
+      	
+      	// Draw the flag
+      	IF bRollover THEN
+      		dRectangleGradient(stPoint:x, stPoint:y - nHeight, stPoint:x + 17, stPoint:y - (nHeight - 17), RGB(209, 209, 209), White, (stFlag:Pressed ? 90 ELSE 270))
+      	ELSE
+      		dRectangleGradient(stPoint:x, stPoint:y - nHeight, stPoint:x + 17, stPoint:y - (nHeight - 17), RGB(239, 239, 239), White, 270)
+      	END
+      		
+      	// Border of the flag
+      	dRectangle(stPoint:x, stPoint:y - nHeight, stPoint:x + 17, stPoint:y - (nHeight - 17), Transparent, nColor)
+      	
+      	// Draw the symbol
+      	dText(stPoint:x + 5, stPoint:y - (nHeight - 1), stFlag:Symbol, nColor)
+      	
+      	// Saves the state
+      	stFlag:Rollover = bRollover
+     type : 458752
+   -
+     name : On_WMMOUSEMOVE
+     internal_properties : CAAAAAgAAAC2RvxL3tOqeLLzy1Dy6Ij31u8J+Btscbnz0wLc4ABTejlEmzMLSNAeeY7oorIpPqVusR4xlqEyfKQBzYySuJEhH6TvIKeqlt5LDb92+fc3tUgHNRM5btD7JLa1T35+FCFuLCVJ6+RHrjKk8DnbzT+Cnw2oznarJTmwQm9QrLPEpONY0anz2ND4dzgwi4x6uQ/+wre0MIBrv99yLtAJnuZF23cYobzS5pTmnhM+YmL2oWqp6h0szlntY3JxtaNVgWgRWrO/SayaNF0wcv0A/85dROV3VuUPSchhmRR0V7cQQ7dC5QgFE2e0fZWFFMGj3gMU/aqlkQ==
+     procedure_id : 1224960926666493137
+     type_code : 12
+     code : |1-
+      // Summary: Manages the event for hovering the chart control
+      // Syntax:
+      //[ <Result> = ] On_WMMOUSEMOVE ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	boolean:     False if a flag was hovered (no other return value otherwise)
+      //
+      Procedure PRIVATE On_WMMOUSEMOVE()
+      
+      	nX, nY 		are int
+      	stInfo		is INFOPOINT
+      	
+      	stFlag	is FLAG
+      	stArea		is AREA
+      	
+      	bHoveredD	is boolean
+      	bHoveredZ	is boolean
+      	
+      	bCatch		is boolean
+      	rRadius		is real
+      	
+      	nSeries		is int
+      	sSeries		is string
+      	sCategories	is string
+      	nYMAX		is int
+      	
+      	CriticalSectionStart()
+      	
+      	// Retrieve the coordinates of the mouse
+      	nX = MouseXPos
+      	nY = MouseYPos
+      	
+      	// If it is a radar chart
+      	IF m_nChartType = grRadar THEN
+      	
+      		// Calculates the radius of the axis [Center of the chart - Mouse]
+      		rRadius = Round(CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, nX, nY))
+      		
+      		// If the mouse is located in the area between the minimum point and the maximum point
+      		bCatch = m_rMinRadius <= rRadius <= m_rMaxRadius
+      	
+      		IF bCatch THEN
+      			
+      			// Draw the tracker
+      			DrawTracker(rRadius)	
+      			
+      			// If at least one point goes through the tracker
+      			IF m_stLastSerie:Points..Occurrence > 0 THEN
+      				
+      				// If a rollover callback was defined
+      				IF CallBackRollover <> “” THEN
+      					
+      					// Retrieves the list of series and the list of categories bu series
+      					FOR i = 1 _TO_ m_stLastSerie:Points..Occurrence
+      						
+      						// If the series changes
+      						IF m_stLastSerie:Points[i]:Series <> nSeries THEN
+      							
+      							// Keeps its number
+      							nSeries = m_stLastSerie:Points[i]:Series
+      							
+      							// Fills the list of series
+      							sSeries += [TAB] + nSeries
+      						END
+      						
+      						// Fills the list of categories
+      						sCategories += [TAB] + nSeries + “;” + m_stLastSerie:Points[i]:Category
+      					END						
+      					
+      					WHEN EXCEPTION IN
+      						
+      						// Runs the rollover callback
+      						ExecuteProcess(CallBackRollover, trtProcedure, sCategories)
+      					DO
+      						
+      					END
+      				END
+      			END				
+      		ELSE
+      			DrawTracker(0)	
+      		END		
+      	
+      	ELSE
+      	
+      		// Switches to XOR mode
+      		dChangeMode(drawXOR)
+      		
+      		// If the drawing of the plots is enabled
+      		IF DrawingPlotEnabled THEN
+      			
+      			// For each one of the points
+      			FOR EACH stInfo of m_arrPoints
+      				
+      				// If the mouse is positioned on the vertical line going through the point
+      				bCatch = (stInfo:Point:x <= nX <= stInfo:Point:x)
+      		
+      				IF bCatch THEN
+      				
+      					// Erases the plots and the previous tracker
+      					ErasePlots()
+      					BREAK
+      				END
+      			END
+      		END
+      		
+      		nYMAX = 99999999
+      	
+      		// For each one of the points
+      		FOR EACH stInfo of m_arrPoints
+      					
+      			// If the mouse is positioned on the vertical line going through the point
+      			bCatch = (stInfo:Point:x <= nX <= stInfo:Point:x)
+      			
+      			// If the mouse crosses the axis of a data
+      			IF bCatch THEN
+      				
+      				// Keeps the highest point
+      				IF nYMAX > stInfo:Point:y THEN
+      					nYMAX = stInfo:Point:y
+      				END
+      				
+      				// If the drawing of the plots is enabled
+      				IF DrawingPlotEnabled THEN
+      				
+      					// Draw the plots and the tracker
+      					DrawPlots(stInfo)
+      				END
+      					
+      				IF nSeries <> stInfo:Series THEN
+      					nSeries = stInfo:Series
+      					
+      					// Fills the list of series
+      					sSeries += [TAB] + nSeries						
+      				END
+      				
+      				// Fills the list of categories
+      				sCategories += [TAB] + nSeries + “;” + stInfo:Category
+      			END
+      		END
+      		
+      		IF nYMAX <> 99999999 THEN
+      			
+      			IF DrawingTrackerEnabled THEN
+      				
+      				m_stLastTracker:Key 		= nYMAX
+      				m_stLastTracker:Color 	= PastelRed
+      				m_stLastTracker:Thickness	= 1
+      				m_stLastTracker:Point		= [nX, nYMAX]
+      			
+      				// Draw the tracker	
+      				dLine(m_stLastTracker:Point:x, m_stLastTracker:Point:y, m_stLastTracker:Point:x, m_stChartRectangle:y2, m_stLastTracker:Color || 0xFFFFFF, m_stLastTracker:Thickness)				
+      			END			
+      		END
+      	
+      		// Restores the drawing mode
+      		dChangeMode(drawDefault)
+      		
+      		// If at least one series and one of its values was hovered
+      		IF sSeries <> “” THEN
+      			
+      			// If a rollover callback was defined
+      			IF CallBackRollover <> “” THEN
+      				
+      				WHEN EXCEPTION IN
+      					
+      					// Runs the rollover callback
+      					ExecuteProcess(CallBackRollover, trtProcedure, sCategories)
+      				DO
+      					
+      				END
+      			END
+      		END		
+      	END
+      		
+      	FOR EACH ELEMENT stFlag of m_arrFlags
+      		
+      		// Defines whether the mouse is found at the location of a flag
+      		bCatch = (stFlag:Point:x - 1 <= nX <= stFlag:Point:x + 17 _AND_ stFlag:Point:y - stFlag:Height <= nY <= stFlag:Point:y - (stFlag:Height - 17))
+      						
+      		// If the mouse is found at the location of a flag
+      		IF bHoveredD = False _AND_ bCatch THEN
+      	
+      			// Draw the flag rollover
+      			DrawFlag(stFlag, stFlag:Point, True)
+      			bHoveredD = True
+      		ELSE
+      			
+      			// Draw the flag rollover
+      			DrawFlag(stFlag, stFlag:Point, False)
+      		END	
+      	END
+      	
+      	FOR EACH ELEMENT stArea of m_arrAreas
+      		
+      		// If it is a radar chart
+      		IF m_nChartType = grRadar THEN
+      			
+      			// Defines whether the mouse is found in the polygon of the area
+      			bCatch = PointInArea(nX, nY, stArea:Polygon)			
+      		ELSE
+      		
+      			// Defines whether the mouse is found at the rectangle of the area
+      			bCatch = (stArea:MinPoint:x  <= nX <= stArea:MaxPoint:x) _AND_ (m_stChartRectangle:y1 <= nY <= m_stChartRectangle:y2)
+      		END
+      		
+      		// If the mouse is found at the location of a point and flag
+      		IF bHoveredZ = False _AND_ bCatch THEN
+      			
+      			// Draw the flag rollover
+      			DrawArea(stArea, True)
+      			bHoveredZ = True
+      		ELSE
+      			
+      			// Draw the flag rollover
+      			DrawArea(stArea, False)
+      		END	
+      	END
+      	
+      	// If a flag or an area was hovered
+      	IF bHoveredD OR bHoveredZ THEN						
+      		
+      		
+      		// Changes the mouse cursor
+      		{m_sChartControl, indControl}..MouseCursor = curSystemHand				
+      		IF bHoveredD THEN RESULT False
+      	ELSE
+      		// Restores the mouse cursor
+      		{m_sChartControl, indControl}..MouseCursor = curArrow
+      	END
+      	
+      	RESULT True
+      END:
+      	CriticalSectionEnd()
+     type : 458752
+   -
+     name : DrawPlots
+     internal_properties : CAAAAAgAAAAs8Re5PiCrqLmLpIZU08NP1yU6umhfxRJ7nfvJrg0HnGdm5QwKgBNtJL8GNHiaIwHdANejqcAcc6k/3RIzBM2cIVoyf0rk5ozbiN9PVZ8N7umcANdR2v498hbqLTnu09mKK0KjJovuOQzQbOJaGpJQfLDyumLPAwggxpC5pyjdyHK0lEEs23bzG+fQzJcFzYb5hP7EEfQbjWoltYASIWFmm+Nv
+     procedure_id : 1224960926666558673
+     type_code : 12
+     code : |1-
+      // Summary: Drawing the tracker and the plots
+      // Syntax:
+      //DrawPlots (<stInfo> is INFOPOINT)
+      //
+      // Parameters:
+      //	stInfo (INFOPOINT): Information about the point
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE DrawPlots(stInfo is INFOPOINT)
+      
+      	nColor	is int
+      	nSubscript		is int
+      	stSeries		is SERIES
+      	stPoint		is INFOPOINT
+      	
+      	// Finds the corresponding series
+      	nSubscript = Seek(m_arrSeries, asLinear, “Number”, stInfo:Series)
+      	IF nSubscript > 0 THEN
+      		
+      		// Retrieves the series
+      		stSeries = m_arrSeries[nSubscript]
+      		
+      		// Retrieves the color and reverses it
+      		nColor = stSeries:Color
+      		nColor = nColor || 0xFFFFFF
+      	
+      		// Defines the data of the point		
+      		stPoint:Category = stInfo:Category
+      		stPoint:Series 	  = stInfo:Series
+      		stPoint:Color	  = stSeries:Color
+      		stPoint:Thickness = stSeries:Thickness
+      		stPoint:Point	  = stInfo:Point
+      		
+      		// Saves the point
+      		Add(m_arrLastPoints, stPoint)
+      		
+      		// Draw a plot
+      		dRectangle(stInfo:Point:x - 3, stInfo:Point:y - 3, stInfo:Point:x + 3, stInfo:Point:y + 3, nColor, nColor)
+      	END	
+      	
+     type : 458752
+   -
+     name : On_WMLBUTTONUP
+     internal_properties : CAAAAAgAAAD8S9qRxs2RQ67bztGknyx2Aqkq4ThoFCoF6FQohbO0gbcGrDpu7E890iSC+rHk1WqRorbCfBBPETMq3307zWU7eMNk0VTArzcLOgxQWMxnXhKQ1QkHy8s4a1meVQzmJXPfCkaI7s1ZZpqR0XiuYo1YMWOcZ9pFLKfwqa2Ti6QG+BEjYDKSBWKrAYKBUSMC5Zqc9FqZ0SYeMI1QmxnjAAK74X574yFrhGqtNc+xovljO94FitlW31cQ+aAwKC+I
+     procedure_id : 1224960926666624209
+     type_code : 12
+     code : |1-
+      // Summary: Manages the click event on the chart control
+      // Syntax:
+      //On_WMLBUTTONUP ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE On_WMLBUTTONUP()
+      
+      	nX, nY 		are int
+      	stFlag	is FLAG
+      	stArea		is AREA
+      	bCatch		is boolean
+      
+      	// Retrieve the coordinates of the mouse
+      	nX = MouseXPos
+      	nY = MouseYPos
+      	
+      	FOR EACH stFlag of m_arrFlags
+      		
+      		// If the mouse is found at the location of a point and flag
+      		IF (stFlag:Point:x - 1 <= nX <= stFlag:Point:x + 17 _AND_ stFlag:Point:y - stFlag:Height <= nY <= stFlag:Point:y - (stFlag:Height - 17)) THEN
+      			
+      			stFlag:Pressed = False
+      			DrawFlag(stFlag, stFlag:Point, True, True)
+      			
+      			// If a click callback was defined
+      			IF FlagCallback <> “” THEN
+      			
+      				WHEN EXCEPTION IN
+      					
+      					// Runs the click callback
+      					ExecuteProcess(FlagCallback, trtProcedure, stFlag:Symbol)
+      				DO
+      					
+      				END
+      			END
+      						
+      			// Exit the loop
+      			RETURN
+      		END	
+      	END
+      	
+      	FOR EACH stArea of m_arrAreas
+      		
+      		// If it is a radar chart
+      		IF m_nChartType = grRadar THEN
+      			
+      			// Defines whether the mouse is found in the polygon of the area
+      			bCatch = PointInArea(nX, nY, stArea:Polygon)			
+      		ELSE
+      			
+      			// Defines whether the mouse is found at the rectangle of the area
+      			bCatch = (stArea:MinPoint:x  <= nX <= stArea:MaxPoint:x) _AND_ (m_stChartRectangle:y1 <= nY <= m_stChartRectangle:y2)
+      		END
+      		
+      		// If the mouse is found at the location of a point and flag
+      		IF bCatch THEN
+      			
+      			// If a click callback was defined
+      			IF AreaCallback <> “” THEN
+      				
+      				WHEN EXCEPTION IN
+      					
+      					// Runs the click callback
+      					ExecuteProcess(AreaCallback, trtProcedure, stArea:Name)
+      				DO
+      				END
+      			END
+      			
+      			// Exit the loop
+      			RETURN
+      		END	
+      	END
+      		
+     type : 458752
+   -
+     name : AddArea
+     internal_properties : CAAAAAgAAABYA3VRhWOK0aCLH7ZuEG9qWoypHWU2mfWlA/6GyLLFYRnX9bDeNjKBQo05DIirCKt8XVG75zGTP5MbeOVWXpxv1nCWVim200XurUPOfCjDsGNYQPN6ZCgR/sAmMxNhExFBLBD8uSFTS7vTReQXmzzpTZj8aXbTd9Z3y0HXH/1Sb0rI
+     procedure_id : 1224960926666689745
+     type_code : 12
+     code : |1-
+      // Summary: Adds a flag onto the chart
+      // Syntax:
+      //[ <Result> = ] AddArea (<sName> is string, <nSeries> is int, <nSourceCategory> is int, <nEndCategory> is int [, <nColor> is int])
+      //
+      // Parameters:
+      //	sName (string): Name of the area (this name must be unique)
+      //	nSeries (integer): Number of the series
+      //	nSourceCategory (integer): Subscript of the source value for the area
+      //	nEndCategory (integer): Subscript of the end value for the area
+      //	nColor (integer - default value=8421504): Color of the area
+      // Return value:
+      // 	integer: Insertion subscript
+      //
+      // Automatic process of exceptions:   run CASE EXCEPTION:
+      //
+      Procedure PUBLIC AddArea(LOCAL sName is string, LOCAL nSeries is int, LOCAL nSourceCategory is int, LOCAL nEndCategory is int, LOCAL nColor is int = DarkGray)
+      
+      	stArea is AREA
+      	nSubscript is int
+      
+      	stArea:Name 				= sName
+      	stArea:Series			= nSeries
+      	stArea:SourceCategory	= nSourceCategory
+      	stArea:EndCategory	= nEndCategory
+      	stArea:Color			= nColor
+      		
+      	// Retrieves the coordinates
+      	stArea:MinPoint:x	= grInfoPoint({m_sChartControl, indControl}, grXCoordinate, nSeries, nSourceCategory)
+      	stArea:MinPoint:y	= grInfoPoint({m_sChartControl, indControl}, grYCoordinate, nSeries, nSourceCategory)
+      	stArea:MaxPoint:x	= grInfoPoint({m_sChartControl, indControl}, grXCoordinate, nSeries, nEndCategory)
+      	stArea:MaxPoint:y	= grInfoPoint({m_sChartControl, indControl}, grYCoordinate, nSeries, nEndCategory)
+      	
+      	IF m_nChartType IN (grColumn, grColumnStacked) THEN
+      		
+      		// In an histogram, Y corresponds to half of the height of the bar
+      		stArea:MinPoint:y = m_stChartRectangle:y2 + (stArea:MinPoint:y - m_stChartRectangle:y2) * 2 + m_nOffsetY				
+      		stArea:MaxPoint:y = m_stChartRectangle:y2 + (stArea:MaxPoint:y - m_stChartRectangle:y2) * 2 + m_nOffsetY				
+      	END
+      	
+      	// Retrieves the value of the areas
+      	stArea:MinVal		= {m_sChartControl, indControl}[nSeries][nSourceCategory]
+      	stArea:MaxVal		= {m_sChartControl, indControl}[nSeries][nEndCategory]
+      	
+      	// Saves the area
+      	nSubscript = Add(m_arrAreas, stArea)	
+      	
+      RESULT nSubscript
+      
+      CASE EXCEPTION:
+      	RESULT -1
+     type : 458752
+   -
+     name : DeleteArea
+     procedure_id : 1224960926666755281
+     type_code : 12
+     code : |1-
+      // Summary: Deletes an area from the chart
+      // Syntax:
+      //DeleteArea (<sName> is string)
+      //
+      // Parameters:
+      //	sName (string): Name of the area to delete
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC DeleteArea(LOCAL sName is string)
+      
+      	nSubscript	  is int
+      
+      	// Finds the area
+      	nSubscript = Seek(m_arrAreas, asLinear, “Name”, Upper(sName))
+      	IF nSubscript > 0 THEN
+      		
+      		// Deletes the area
+      		Delete(m_arrAreas, nSubscript)
+      	END	
+     type : 458752
+   -
+     name : DeleteAllAreas
+     procedure_id : 1224960926666820817
+     type_code : 12
+     code : |1-
+      // Summary: Deletes all the areas
+      // Syntax:
+      //DeleteAllAreas ([<nSeries> is int])
+      //
+      // Parameters:
+      // 	nSeries (integer - default value=-1): Number of the series whose areas must be deleted or -1 to delete all the areas
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC DeleteAllAreas(LOCAL nSeries is int = -1)
+      
+      	nSubscript	  is int
+      
+      	IF nSeries = -1 THEN
+      		
+      		// Deletes all the areas
+      		DeleteAll(m_arrAreas)		
+      	ELSE
+      		
+      		// First area of the series
+      		nSubscript = Seek(m_arrAreas, asLinear, “Series”, nSeries)
+      		WHILE nSubscript > 0
+      			
+      			// Deletes the area
+      			Delete(m_arrAreas, nSubscript)
+      			
+      			// Next area in the series
+      			nSubscript = Seek(m_arrAreas, asLinear, “Series”, nSeries)
+      		END
+      	END
+     type : 458752
+   -
+     name : ModifyArea
+     procedure_id : 1224960926666886353
+     type_code : 12
+     code : |1-
+      // Summary: Modifies an area on the chart. The area is created if it does not exist
+      // Syntax:
+      //ModifyArea (<sName> is string, <nSeries> is int, <nSourceCategory> is int, <nEndCategory> is int [, <nColor> is int])
+      //
+      // Parameters:
+      //	sName (string): Name of the area to modify
+      //	nSeries (integer): Number of the series
+      //	nSourceCategory (integer): Subscript of the source value for the area
+      //	nEndCategory (integer): Subscript of the end value for the area
+      // 	nColor (integer - default value=lightgray): Color of the area
+      // Return value:
+      // 	None
+      //
+      Procedure PUBLIC ModifyArea(LOCAL sName is string, LOCAL nSeries is int, LOCAL nSourceCategory is int, LOCAL nEndCategory is int, LOCAL nColor is int = DarkGray)
+      
+      	nSubscript	  is int
+      		
+      	// Finds the area
+      	nSubscript = Seek(m_arrAreas, asLinear, “Name”, Upper(sName))
+      	IF nSubscript > 0 THEN
+      		
+      		// Deletes the area
+      		Delete(m_arrAreas, nSubscript)
+      	END
+      		
+      	// Adds an area
+      	AddArea(sName, nSeries, nSourceCategory, nEndCategory, nColor)
+     type : 458752
+   -
+     name : DrawArea
+     procedure_id : 1224960926666951889
+     type_code : 12
+     code : |1-
+      // Summary: Drawing an area
+      // Syntax:
+      //DrawArea (<stArea> is AREA [, <bRollover> is boolean])
+      //
+      // Parameters:
+      //	stArea (AREA): Area to display
+      // 	bRollover (boolean - default value=0): True if the area is hovered, False otherwise
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE DrawArea(stArea is AREA, LOCAL bRollover is boolean = False)
+      
+      	arrPoints		is array of int
+      
+      	// Don't re-draw the flag if it status does not change
+      	IF MyParameters..NbReceived = 2 THEN
+      		IF stArea:Rollover 	_AND_ bRollover 		THEN RETURN
+      		IF NOT stArea:Rollover _AND_ NOT bRollover 	THEN RETURN
+      	END
+      	
+      	// No border
+      	dPen(Transparent)
+      	
+      	// Hatched background
+      	dBackGround(bRollover ? PastelRed ELSE stArea:Color, 2, 2)
+      	
+      	IF m_nChartType = grRadar THEN
+      			
+      		// Defines whether the polygon of the area must be recalculated
+      		IF stArea:Polygon..Occurrence = 0 THEN
+      			
+      			// Calculates the polygon of the area
+      			CalculateAreaPolygon(stArea)		
+      		END
+      		
+      		// Draw the area
+      		arrPoints = stArea:Polygon
+      		dPolygon(arrPoints)		
+      		
+      	ELSE
+      		// Draw the area
+      		dRectangle(stArea:MinPoint:x, m_stChartRectangle:y1, stArea:MaxPoint:x, m_stChartRectangle:y2)	
+      	END
+      	
+      	
+      	stArea:Rollover = bRollover
+     type : 458752
+   -
+     name : On_WMLBUTTONDOWN
+     procedure_id : 1224960926667017425
+     type_code : 12
+     code : |1-
+      // Summary: Manages the click event on the chart control
+      // Syntax:
+      //On_WMLBUTTONDOWN ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE On_WMLBUTTONDOWN()
+      
+      	nX, nY 		are int
+      	stFlag	is FLAG
+      
+      	// Retrieve the coordinates of the mouse
+      	nX = MouseXPos
+      	nY = MouseYPos
+      	
+      	FOR EACH stFlag of m_arrFlags
+      		
+      		// If the mouse is found at the location of a point and flag
+      		IF (stFlag:Point:x - 1 <= nX <= stFlag:Point:x + 17 _AND_ stFlag:Point:y - stFlag:Height <= nY <= stFlag:Point:y - (stFlag:Height - 17)) THEN
+      			
+      			stFlag:Pressed = True
+      			DrawFlag(stFlag, stFlag:Point, True, True)			
+      		ELSE
+      			
+      			stFlag:Pressed = False
+      			DrawFlag(stFlag, stFlag:Point)			
+      		END	
+      	END
+      	
+     type : 458752
+   -
+     name : CalculateAreaPolygon
+     procedure_id : 1224960926667082961
+     type_code : 12
+     code : |1-
+      // Summary: Calculates the displayable polygon of an area
+      // Syntax:
+      //CalculateAreaPolygon (<stArea> is AREA)
+      //
+      // Parameters:
+      //	stArea (AREA): Area whose polygon must be calculated
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE CalculateAreaPolygon(stArea is AREA)
+      
+      	
+      	nSubscript	is int
+      	
+      	// Clears the polygon
+      	DeleteAll(stArea:Polygon)
+      	
+      	// The polygon starts from the center
+      	Add(stArea:Polygon, m_stChartCenter:x)
+      	Add(stArea:Polygon, m_stChartCenter:y)
+      	
+      	// For each point found between the source point and the end point
+      	FOR i = stArea:SourceCategory _TO_ stArea:EndCategory
+      		
+      		// Finds the point
+      		nSubscript = Seek(m_arrPoints, asLinear, “Key”, stArea:Series + “-” + i)
+      		IF nSubscript > 0 THEN
+      		
+      			// Adds the point corresponding to the category
+      			AreaPolygonAddVertex(stArea, m_arrPoints[nSubscript])		 
+      		END
+      	END
+      	
+      	// The polygon ends at the center
+      	Add(stArea:Polygon, m_stChartCenter:x)
+      	Add(stArea:Polygon, m_stChartCenter:y)
+      	
+     type : 458752
+   -
+     name : CalculateAxisLength
+     procedure_id : 1224960926667148497
+     type_code : 12
+     code : |1-
+      // Summary: Calculates the length of an axis
+      // Syntax:
+      //[ <Result> = ] CalculateAxisLength (<nX1> is int, <nY1> is int, <nX2> is int, <nY2> is int)
+      //
+      // Parameters:
+      //	nX1 (integer): X coordinate of point 1
+      //	nY1 (integer): Y coordinate of point 1
+      //	nX2 (integer): X coordinate of point 2
+      //	nY2 (integer): Y coordinate of point 2
+      // Return value:
+      // 	real: Length of the axis [nX1,nY1]-[nX2,nY2]
+      //
+      Procedure PRIVATE CalculateAxisLength(LOCAL nX1 is int, LOCAL nY1 is int, LOCAL nX2 is int, LOCAL nY2 is int)
+      
+      	rLength is real
+      	
+      	// Normalizes the values
+      	IF nX1 > nX2 THEN nX1 <=> nX2
+      	IF nY1 > nY2 THEN nY1 <=> nY2
+      	
+      	// Calculates the length of the axis
+      	rLength = Root((nY2 - nY1)^2 + (nX2 - nX1)^2)
+      	
+      RESULT rLength
+     type : 458752
+   -
+     name : PointInArea
+     procedure_id : 1224960926667214033
+     type_code : 12
+     code : |1-
+      // Summary: Defines whether a point is found in an area
+      // Syntax:
+      //[ <Result> = ] PointInArea (<nX> is int, <nY> is int, <arrPolygon> is array)
+      //
+      // Parameters:
+      //	nX (integer): X coordinate of the point
+      //	nY (integer): Y coordinate of the point
+      //	arrPolygon (array): Polygon of the area
+      // Return value:
+      // 	boolean:   True if the point is found in the area, False otherwise
+      //
+      Procedure PRIVATE PointInArea(LOCAL nX is int, LOCAL nY is int, arrPolygon is array of int)
+      	
+      	bPointInArea 		is boolean
+      	nDimension	   		is int = (arrPolygon..Occurrence / 2)
+      	arrPoints	   		is array of nDimension POINT
+      	rXIntersection  	is real
+      	nNbIntersect   		is int
+      	stPoint1, stPoint2 	are POINT
+      	
+      	// Transfers the polygon into an array of POINT
+      	Transfer(&arrPoints, &arrPolygon, Dimension(stPoint1) * nDimension)
+      
+      	// Stores the first point
+      	stPoint1 = arrPoints[1]
+      	
+      	// For each point or the polygon
+      	FOR i = 1 _TO_ nDimension
+      	
+      		// Stores the next point	
+      		stPoint2 = arrPoints[modulo(i, nDimension) + 1]
+      		
+      		// If Y[Mouse] is strictly greater than the lowest point of the [P1-P2] segment
+      		IF nY > Min(stPoint1:y,stPoint2:y) THEN
+      			
+      			// If Y[Mouse] is less than or equal to the highest point of the [P1-P2] segment
+      			IF nY <= Max(stPoint1:y,stPoint2:y) THEN
+      				
+      				// If X[Mouse] is less than or equal to the point located on the right extremity of the [P1-P2] segment
+      				IF nX <= Max(stPoint1:x,stPoint2:x) THEN
+      					
+      					// If the [P1-P2] segment is not horizontal (i.e. same y-coordinate)
+      					IF stPoint1:y <> stPoint2:y THEN						
+      						
+      						// Calculates the intersection point on [P1-P2] of the horizontal line going through Y[Mouse]
+      						rXIntersection = (nY - stPoint1:y) * (stPoint2:x - stPoint1:x) / (stPoint2:y - stPoint1:y) + stPoint1:x
+      						
+      						// If the [P1-P2] segment is vertical or if X[Mouse] is less than the intersection point
+      						IF stPoint1:x = stPoint2:x OR nX < rXIntersection THEN
+      							
+      							// Increments the number of intersections
+      							nNbIntersect ++
+      						END						
+      					END
+      				END
+      			END
+      		END
+      		
+      		// Next point
+      		stPoint1 = stPoint2
+      	END
+      	
+      	// If the number of intersections is an odd number, the point is located in the area
+      	// If the number of intersections is an even number, the point is located outside the area
+      	bPointInArea = IsOdd(nNbIntersect)
+      	
+      RESULT bPointInArea
+     type : 458752
+   -
+     name : DrawTracker
+     internal_properties : CAAAAAgAAAClROx+deka4V/yBQQntqblkSe4GH01C/93WDSbP4ZV91PD+zLUQYK7XKN0+DO4BX+cTTp6ZVGTZCBNcgnXyO69V3ZjbAeBtRKQpgTCZzxh2Y51OmrC/OukxZxKejtvGv/K8tGzX+IFk0cbpw1QelgJznTI4RlFRjQ3pKIqvlpRonNp7d8q5Mndn/RVaXxJerrVHmJp2qVm5w001nDdacgy4zaR27DjbJi4y6jxoRWzPmRgMtNflNUjzWgqeyFM1oKg4euSFFY28ks/QiD0YOinNoXpisdKZaWk8xSlmQd6mQ==
+     procedure_id : 1224960926667279569
+     type_code : 12
+     code : |1-
+      // Summary: Draws the tracker and the points going through the tracker
+      // Syntax:
+      //DrawTracker (<rTrackerRadius> is real)
+      //
+      // Parameters:
+      //	rTrackerRadius (real): Radius of the tracker
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE DrawTracker(LOCAL rTrackerRadius is real)
+      
+      	nColor	is int		= PastelRed || 0xFFFFFF
+      	stInfo		is INFOPOINT
+      	stCircle	is RECTANGLE
+      	rRadius		is real
+      
+      	// Switches to XOR mode
+      	dChangeMode(drawXOR)
+      	
+      	// If a tracker was previously drawn				
+      	IF m_stLastSerie:Number > 0 THEN
+      	
+      		// If the drawing of the plots is enabled
+      		IF DrawingPlotEnabled THEN
+      		
+      			IF DrawingTrackerEnabled THEN
+      				
+      				// Erases the previous tracker
+      				dCircle(m_stLastSerie:MinPoint:x, m_stLastSerie:MinPoint:y, m_stLastSerie:MaxPoint:x, m_stLastSerie:MaxPoint:y, Transparent, nColor)
+      			END
+      			
+      			FOR EACH stInfo of m_stLastSerie:Points
+      				
+      				// Erases the plot
+      				dRectangle(stInfo:Point:x - 3, stInfo:Point:y - 3, stInfo:Point:x + 3, stInfo:Point:y + 3, m_arrSeries[stInfo:Series]:Color || 0xFFFFFF, m_arrSeries[stInfo:Series]:Color || 0xFFFFFF)			
+      			END
+      		END
+      		
+      		// Re-initializes the tracker
+      		VariableReset(m_stLastSerie)
+      	END
+      	
+      	// Defines all the points that go through the circle of the tracker
+      	FOR EACH stInfo of m_arrPoints
+      		
+      		rRadius = Round(CalculateAxisLength(m_stChartCenter:x, m_stChartCenter:y, stInfo:Point:x, stInfo:Point:y))
+      		
+      		IF rTrackerRadius = rRadius THEN
+      		
+      			// If the drawing of the plots is enabled
+      			IF DrawingPlotEnabled THEN
+      			
+      				// Draw a plot
+      				dRectangle(stInfo:Point:x - 3, stInfo:Point:y - 3, stInfo:Point:x + 3, stInfo:Point:y + 3, m_arrSeries[stInfo:Series]:Color || 0xFFFFFF, m_arrSeries[stInfo:Series]:Color || 0xFFFFFF)
+      			END
+      
+      			// Saves the plot
+      			Add(m_stLastSerie:Points, stInfo)
+      		END		
+      	END
+      	
+      	// Sorts the points by series
+      	ArraySort(m_stLastSerie:Points, asMember, “Series”)
+      	
+      	IF DrawingTrackerEnabled _AND_ m_stLastSerie:Points..Occurrence > 0 THEN
+      		
+      		// Coordinates of the rectangle included in the circle
+      		stCircle:x1 = m_stChartCenter:x - rTrackerRadius
+      		stCircle:x2 = m_stChartCenter:x + rTrackerRadius
+      		stCircle:y1 = m_stChartCenter:y - rTrackerRadius
+      		stCircle:y2 = m_stChartCenter:y + rTrackerRadius
+      		
+      		// Draw the current tracker from the center of the chart
+      		dCircle(stCircle:x1, stCircle:y1, stCircle:x2, stCircle:y2, Transparent, nColor)		
+      		
+      		// Keeps the minimum point
+      		m_stLastSerie:MinPoint 	= [stCircle:x1, stCircle:y1]				
+      		m_stLastSerie:MaxPoint 	= [stCircle:x2, stCircle:y2]				
+      	END
+      	
+      	// Stores the information
+      	m_stLastSerie:Number 	= 1			
+      	
+      	// Restores the drawing mode
+      	dChangeMode(drawDefault)	
+     type : 458752
+   -
+     name : AverageValue
+     procedure_id : 1224960926667345105
+     type_code : 12
+     code : |1-
+      // Summary: Returns the average value of a series
+      // Syntax:
+      //[ <Result> = ] AverageValue (<nSeries> is int)
+      //
+      // Parameters:
+      //	nSeries (integer): Number of the series
+      // Return value:
+      // 	real: Average value of the series or -1 if an error occurs
+      //
+      Procedure AverageValue(LOCAL nSeries is int)
+      
+      	nSubscript 	is int
+      	rAverage	is real
+      	
+      	// Finds the series
+      	nSubscript = Seek(m_arrSeries, asLinear, “Number”, nSeries)
+      	IF nSubscript > 0 THEN
+      		
+      		// Retrieves the average value of the series
+      		rAverage = m_arrSeries[nSubscript]:AveValue		
+      	ELSE
+      		rAverage = -1
+      	END
+      	
+      RESULT rAverage
+     type : 458752
+   -
+     name : AreaPolygonAddVertex
+     procedure_id : 1224960926667410641
+     type_code : 12
+     code : |1-
+      // Summary: Adds a vertex to an area polygon
+      // Syntax:
+      //AreaPolygonAddVertex (<stArea> is AREA, <stInfoPoint> is INFOPOINT)
+      //
+      // Parameters:
+      //	stArea (AREA): Area to fill
+      //	stInfoPoint (INFOPOINT): Point to add
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE AreaPolygonAddVertex(stArea is AREA, stPointInfo is INFOPOINT)
+      
+      	rX, rY are reals
+      
+      	// Special case: vertical line
+      	IF stPointInfo:Point:x = m_stChartCenter:x THEN
+      		
+      		// Casts the point on the line according to the max value
+      		Add(stArea:Polygon, stPointInfo:Point:x)
+      		Add(stArea:Polygon, m_stChartCenter:y + m_rMaxRadius)	
+      	ELSE
+      		
+      		// Calculates the projection of X on the [ChartCenter;Point] line at the <m_rMaxRadius> length
+      		// Expression:
+      		//                                           X[Point] - X[ChartCenter]                         X[ChartCenter]
+      		//   X = Length( ------------------------------------------------------------------------  + ----------------- )
+      		//				      ROOT((Y[Point] - Y[ChartCenter])² + (X[Point] - X[chartCenter])²)           Length
+      		//
+      		rX = m_rMaxRadius * ((stPointInfo:Point:x - m_stChartCenter:x) / Root((stPointInfo:Point:y - m_stChartCenter:y)^2 + (stPointInfo:Point:x - m_stChartCenter:x)^2) + (m_stChartCenter:x / m_rMaxRadius))
+      		
+      		// Calculates the projection of Y on the [ChartCenter;Point] line at the <m_rMaxRadius> length
+      		// Expression:
+      		//             Y[Point] - Y[ChartCenter]                  Y[Point] - Y[ChartCenter]
+      		//   Y = X * ( -------------------------- ) + Y[Point] - ( -------------------------- ) * X[Point]
+      		//             X[Point] - X[ChartCenter]                  X[Point] - X[ChartCenter]
+      		//
+      		rY = ((stPointInfo:Point:y - m_stChartCenter:y) / (stPointInfo:Point:x - m_stChartCenter:x)) * rX + stPointInfo:Point:y - ((stPointInfo:Point:y - m_stChartCenter:y) / (stPointInfo:Point:x - m_stChartCenter:x)) * stPointInfo:Point:x
+      		
+      		Add(stArea:Polygon, rX)
+      		Add(stArea:Polygon, rY)
+      	END
+     type : 458752
+   -
+     name : ErasePlots
+     internal_properties : CAAAAAgAAACU/w932xzElSUnM+AMTlcjIOFCWZQuSVNmQ6ctbyRuxeDj+bdLoa+iBk8wXqDyrKiwt01SFvQEdkkykLsg8/IBJ+yrgGcX3ZD7I/8NBSoP7EOiSwPcc7zkLlOxgPf6dFPgtn5Cu8CA5IElkCg44STe9tN47T+QX9Nlu3onVelhrpg7nOS1ZKE7SrgaiX2VWZ0atiuUK8lsRRASz8dFx13iljn6XxjUjfMJtiXLRKrfJTlDwh3fKQUZKu4T9ycZYw==
+     procedure_id : 1224960926667476177
+     type_code : 12
+     code : |1-
+      // Summary: Erases the plots and the previous tracker
+      // Syntax:
+      //ErasePlots ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	None
+      //
+      Procedure PRIVATE ErasePlots()
+      
+      	nColor is int
+      
+      	IF m_arrLastPoints..Occurrence > 0 THEN
+      		
+      		IF DrawingPlotEnabled THEN
+      		
+      			// For each point
+      			FOR i = 1 _TO_ m_arrLastPoints..Occurrence
+      				
+      				nColor = m_arrLastPoints[i]:Color
+      				nColor = nColor || 0xFFFFFF
+      				
+      				// Erases the previous plot
+      				dRectangle(m_arrLastPoints[i]:Point:x - 3, m_arrLastPoints[i]:Point:y - 3, m_arrLastPoints[i]:Point:x + 3, m_arrLastPoints[i]:Point:y + 3, nColor, nColor)
+      				
+      			END	
+      		END
+      		
+      		// Clears the list of points
+      		DeleteAll(m_arrLastPoints)	
+      	END
+      	
+      	// If a tracker was previously drawn				
+      	IF m_stLastTracker:Key <> “” THEN
+      		
+      		// Retrieves the color and reverses it
+      		nColor = m_stLastTracker:Color
+      		nColor = nColor || 0xFFFFFF
+      		
+      		IF DrawingTrackerEnabled THEN
+      			
+      			// Erases the previous tracker
+      			dLine(m_stLastTracker:Point:x, m_stLastTracker:Point:y, m_stLastTracker:Point:x, m_stChartRectangle:y2, nColor, m_stLastTracker:Thickness)
+      		END
+      		
+      		// Re-initializes the tracker
+      		VariableReset(m_stLastTracker)
+      	END
+     type : 458752
+  properties :
+   -
+     name : DrawingMinMaxEnabled
+     identifier : 0x10ffef79019e8cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure DrawingMinMaxEnabled()
+         RESULT m_bMinMaxEnabled
+        type : 1966080
+      -
+        code : |1-
+         Procedure DrawingMinMaxEnabled(LOCAL bMinMaxEnabled is boolean)
+         
+         	// Stores the new value
+         	m_bMinMaxEnabled = bMinMaxEnabled	
+        type : 2031616
+     template_refs : []
+   -
+     name : MinMaxStyle
+     identifier : 0x10ffef79019f8cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure MinMaxStyle()
+         RESULT m_nMinMaxStyle
+        type : 1966080
+      -
+        code : |1-
+         Procedure MinMaxStyle(LOCAL nMinMaxStyle is int)
+         
+         	IF nMinMaxStyle IN (MINMAX_LINES, MINMAX_AREAS) THEN
+         		
+         		// Stores the new value
+         		m_nMinMaxStyle = nMinMaxStyle
+         	END
+        type : 2031616
+     template_refs : []
+   -
+     name : DrawingPlotEnabled
+     identifier : 0x10ffef7901a08cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure DrawingPlotEnabled()
+         RESULT m_bPlotEnabled
+        type : 1966080
+      -
+        code : |1-
+         Procedure DrawingPlotEnabled(LOCAL bPlotEnabled is boolean)
+         
+         	// Stores the new value
+         	m_bPlotEnabled = bPlotEnabled
+        type : 2031616
+     template_refs : []
+   -
+     name : DrawingTrackerEnabled
+     identifier : 0x10ffef7901a18cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure DrawingTrackerEnabled()
+         RESULT m_bTrackerEnabled
+        type : 1966080
+      -
+        code : |1-
+         Procedure DrawingTrackerEnabled(LOCAL bTrackerEnabled is boolean)
+         
+         	// Stores the new value
+         	m_bTrackerEnabled = bTrackerEnabled
+        type : 2031616
+     template_refs : []
+   -
+     name : FlagCallback
+     identifier : 0x10ffef7901a28cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure FlagCallback()
+         RESULT m_sFlagCallback
+        type : 1966080
+      -
+        code : |1-
+         Procedure FlagCallback(LOCAL sFlagCallback is string)
+         
+         	// Stores the new value
+         	m_sFlagCallback = sFlagCallback
+        type : 2031616
+     template_refs : []
+   -
+     name : CallBackRollover
+     identifier : 0x10ffef7901a38cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure CallBackRollover()
+         RESULT m_sCallBackRollover
+        type : 1966080
+      -
+        code : |1-
+         Procedure CallBackRollover(LOCAL sCallBackRollover is string)
+         
+         	// Stores the new value
+         	m_sCallBackRollover = sCallBackRollover
+        type : 2031616
+     template_refs : []
+   -
+     name : AreaCallback
+     identifier : 0x10ffef7901a48cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure AreaCallback()
+         RESULT m_sAreaCallback
+        type : 1966080
+      -
+        code : |1-
+         Procedure AreaCallback(LOCAL sAreaCallback is string)
+         
+         	// Stores the new value
+         	m_sAreaCallback = sAreaCallback
+        type : 2031616
+     template_refs : []
+   -
+     name : DrawingAverageEnabled
+     identifier : 0x10ffef7901a58cd1
+     type_code : 103
+     p_codes :
+      -
+        code : |1-
+         Procedure DrawingAverageEnabled()
+         RESULT m_bAverageEnabled
+        type : 1966080
+      -
+        code : |1-
+         Procedure DrawingAverageEnabled(LOCAL bAverageEnabled is boolean)
+         
+         	// Stores the new value
+         	m_bAverageEnabled = bAverageEnabled
+        type : 2031616
+     template_refs : []
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x19d0dba100082510
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

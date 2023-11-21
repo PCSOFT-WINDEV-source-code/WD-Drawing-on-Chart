@@ -1,0 +1,145 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : pDrawingChart
+ major_version : 28
+ minor_version : 0
+ type : 7
+ description : ""
+ subtype : 0
+procedure_set :
+ identifier : 0x10ffef7c01c398d2
+ internal_properties : CAAAAAgAAABGLu41kG7fjQV3iS4F72qmnKaNh5694reolNKIW0iw
+ code_elements :
+  internal_properties : CAAAAAgAAACo+UUK2SWkcPU2jcpeBdjHZkb4NuO6IhXY7z7BeiEBQS3E7G2xcALVVRx0q9OTbMZXXIxA+wvp8cjJ0pB/BALG1I/c5k9E
+  type_code : 31
+  p_codes :
+   -
+     code : |1-
+      
+      PUBLIC
+      
+      	CONSTANT
+      		MINMAX_AREAS	= 1
+      		MINMAX_LINES	= 2	
+      	END
+      
+      PRIVATE
+      	gaaChartObjects is ASSOCIATIVE ARRAY of cChartDrawing dynamic
+     type : 720896
+  procedures :
+   -
+     name : grEnableDrawing
+     procedure_id : 1224960939552708818
+     type_code : 15
+     code : |1-
+      // Summary: Enables the drawing on a chart control
+      // Syntax:
+      //[ <Result> = ] grEnableDrawing (<ChartControl>, <nNbCategories>)
+      //
+      // Parameters:
+      //	ChartControl: <specify the role of ChartControl>
+      // 	nNbCategories: <specify the role of nNbCategories>
+      // Return value:
+      // 	Undefined type: Drawing object associated with the chart control or Null if an error occurs
+      //
+      
+      Procedure PUBLIC grEnableDrawing(ChartControl,nNbCategories)
+      
+      	pclDrawing is cChartDrawing dynamic
+      
+      	// Checks whether the control is a chart control
+      	IF NOT ChartControl..Type = typChart THEN RESULT Null
+      	
+      	SWITCH grType(ChartControl)
+      		
+      		// No drawing can be done on the 3D charts
+      		CASE gr3DSAreaStacked, gr3DSAreaDepth, gr3DSLine, gr3DSCylinderColStacked, gr3DSCylinderColClustered, gr3DSCylinderColDepth, gr3DSColumnStacked, gr3DSColumnClustered, gr3DSColumnDepth, gr3DSMinMax, gr3DSScatter, gr3DSPie
+      			RESULT Null
+      
+      		// No drawing can be done on the charts without axes
+      		CASE grSemiCircular, grPie, grDonut
+      			RESULT Null			
+      			
+      		// The drawing was not intended for the following charts
+      		CASE grScatter, grMinMax, grCandleStick, grBarCharts		
+      			RESULT Null
+      		
+      		OTHER CASE
+      	END
+      
+      	// Checks whether the drawing was already enabled on this chart
+      	IF gaaChartObjects[ChartControl..FullName] = Null THEN
+      				
+      		// Creates a drawing object for the chart
+      		pclDrawing = new cChartDrawing(ChartControl..FullName,nNbCategories)
+      		
+      		// Starts drawing
+      		IF pclDrawing <> Null THEN
+      			pclDrawing:Drawing()
+      		END
+      		
+      		// Assigns the object
+      		gaaChartObjects[ChartControl..FullName] = pclDrawing
+      	END
+      	
+      	// Retrieves the drawing object linked to the chart control
+      	pclDrawing = gaaChartObjects[ChartControl..FullName]
+      	
+      // Returns the object
+      RESULT pclDrawing
+      
+      //CASE EXCEPTION:
+      //	result null
+     type : 458752
+   -
+     name : grDraw
+     internal_properties : CAAAAAgAAADvHda3NXD6IoFIHC9Z3EqRsBI6+qU8RSUbHqG1fQ7jKzme5VBGbgc5ZwVI6Y0xIzd/lZ2ec3AfyIvum2G1nTRhufKnSfaVRswr3o0xHZsG7EXN9hH1kJ22+6YYcYULWeaJjnsyXw18DzbHJwE68F+y6J7BwK5ErVqO8fWM9FWYaN4qV9G9oXaJHWFIXlw27r1b9Wvma8GhbdHJVhLaVgcGuOQaGQpOMhfEABbPbe3zjaBhZ1cKKMH3d6AV47QLKAAmSr9k1l7qxdL8+ru0krrd92C5VwafN+Y/E7mtRxFZz/X3IcAI9K2iYP5oZQU4i8NxqtrPfcdSjpvIen4pAaDmKYLabnCxw/+LcBLZkqpHtjfA2VVYGjup1d4rUb1tqlp6/g==
+     procedure_id : 1224960939552774354
+     type_code : 15
+     code : |1-
+      // Summary: Draws a chart according to the specified parameters.
+      // Syntax:
+      //grDraw (<ChartControl>)
+      //
+      // Parameters:
+      //	ChartControl: Name of the chart control
+      // Return value:
+      // 	None
+      // Note: 
+      // The function named grDraw takes into account the new parameters specified during the last call to this same function.
+      //
+      // Automatic process of exceptions:   run CASE EXCEPTION:
+      //
+      Procedure PUBLIC grDraw(ChartControl)
+      
+      	sControl is string
+      	
+      	// Retrieves the name of the control
+      	sControl = MyParameters[1]
+      	sControl = {sControl, indControl}..FullName
+      
+      	// Starts the immediate drawing
+      	WL.grDraw(ChartControl)
+      
+      	// Checks whether the drawing was enabled on this chart
+      	IF gaaChartObjects[sControl] <> Null THEN
+      		
+      		// Performs the drawing
+      		gaaChartObjects[sControl]:Drawing(True)
+      	END
+      	
+      CASE EXCEPTION:
+      	RETURN
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : COL_Collection1
+resources :
+ string_res :
+  identifier : 0x19cbc07400091df6
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

@@ -1,0 +1,98 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : WD Drawing on Chart
+ major_version : 28
+ minor_version : 0
+ type : 4097
+ description : The purpose of the project is...
+ subtype : 0
+project :
+ identifier : 0x0
+ internal_properties : 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
+ configurations :
+  -
+    name : WD Drawing on Chart
+    internal_properties : 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
+    configuration_id : 2801680290626111681
+    type : 1
+    generation_name : WD Drawing on Chart.exe
+    version :
+     version : VI180036F
+     autoincrement_version : false
+    icon_filename : .\Chart.ico
+    language : 2
+    new_features_help :
+     name : ""
+     internal_properties : CAAAAAgAAADTr/B6gcJjhzvLer58+RVOGXesPPO+F8BDO52D2u3w+JxxkAssgWP+byBPBdIt1GUfr1VAOGpM3ibUUA==
+ elements :
+  identifier : 0x4c4d9809003eb035
+  elements :
+   -
+     name : WIN_Example
+     identifier : 0x49cbc1e70001c8d5
+     internal_properties : CAAAAAgAAABn409TUA0lxu8TSuKhSW/j6aQw8F4UlVqK/JomhWSuYpaqRSoPNMcErGhSrnZqFopy8g==
+     physical_name : .\WIN_Example.wdw
+     type : 2
+   -
+     name : TEST_WIN_Example
+     identifier : 0x4c74e98b002ddf9f
+     internal_properties : CAAAAAgAAACNieU5hvO75MkBZLifiEWdP1wKEpF1kspWDbpvFRcHMctlilXRavEumoZwSMg4wDCYmA==
+     physical_name : .\TEST_WIN_Example.wxt
+     type : 17
+  other_elements :
+   -
+     physical_name : .\chart-1.gif
+   -
+     physical_name : .\chart-2.gif
+   -
+     physical_name : .\chart-3.gif
+   -
+     physical_name : .\chart-4.gif
+  analysis : .\WD Drawing on Chart.ana\WD Drawing on Chart.wda
+  net_assemblies : []
+  uwp_api : []
+  external_components : []
+  internal_components :
+   -
+     physical_name : .\DrawingOnChart\DrawingOnChart.wci
+ report_and_queries_enabled : false
+ common_generation_directory : true
+ languages :
+  - en-GB
+ code_elements :
+  internal_properties : CAAAAAgAAACOpEr/epGzRIw1V7+ku0xy4jDCwwHrWrucHdGrnTxEkXhnTOsWnAImeGW/Osb2Jsvu429uQwi1PA632P5z1ruX/4jhcaLYA0uQA9uhCZMtqOriysFvaA==
+  type_code : 0
+  p_codes :
+   -
+     code : |1-
+      
+     type : 196608
+   -
+     type : 196621
+   -
+     type : 196627
+     enabled : false
+  orphans :
+   -
+     name : WD Drawing on Chart
+     identifier : 0x4c4d98090041b093
+     code_elements :
+      type_code : 159
+      p_codes : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+rad :
+ internal_properties : CAAAAAgAAABhIL0UXeZmxDJxY3Xy0Q==
+project_explorer :
+ explorer_type : project
+ children :
+  -
+    name : Windows Store Apps API
+    explorer_type : custom_folder
+resources :
+ string_res :
+  identifier : 0x0
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAAAd98VSJfHHqE3P0QHwrwdhn7ig8dWBR6valpUTgnAMTVXiDg==
